@@ -28,7 +28,7 @@ Options:
   --help              Show this message and exit.
 ```
 
-Let's assume you've got your AWS credentials in `~/.aws/credentials`.  Go to your GitHub settings and [create a personal access token](https://github.com/settings/tokens/new) for `s3same` (the token must have the `repo` permission).  Create `~/.s3same` with:
+Let's assume you've got your AWS credentials in [`~/.aws/credentials`](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).  Go to your GitHub settings and [create a personal access token](https://github.com/settings/tokens/new) for `s3same` (the token must have the `repo` permission).  Create `~/.s3same` with:
 ```
 GITHUB_TOKEN=put your token here
 S3_BUCKET=the bucket to which artifacts will be uploaded
