@@ -29,24 +29,39 @@ def _policy_string(bucket):
             ]
         })
 
+def _all_policies(iam, **kwargs):
+    marker = None
+    while True:
+        if marker:
+            kwargs['Marker'] = marker
+        response = iam.list_policies(**kwargs)
+        for policy in response.get('Policies', []):
+            yield policy
+        marker = response.get('Marker')
+        if not response.get('IsTruncated') or marker is None:
+            break
+    
 def _policy_arn(iam, bucket):
     policy_arn = None
     try:
+        # Try creating the policy...
         response = iam.create_policy(
                 PolicyName=IAMName,
                 PolicyDocument=_policy_string(bucket),
                 )
+        # ... and getting its ARN from the response.
         policy_arn = response.get('Policy', {}).get('Arn')
     except ClientError as e:
         if e.response['Error']['Code'] != 'EntityAlreadyExists':
             raise
-        marker = None
-        while not policy_arn:
-            response = iam.list_policies(Scope='Local')
-            policy_arn = next((p.get('Arn') for p in response.get('Policies', []) if p.get('PolicyName') == IAMName), None)
-            if not response.get('IsTruncated'):
-                break
-            marker = response['Marker']
+        # If the policy already exists, go find it and get its ARN.
+        policy_arn = next(
+                (p.get('Arn')
+                    for p in _all_policies(iam, Scope='Local')
+                    if p.get('PolicyName') == IAMName
+                    ),
+                None)
+    # If we failed to get an ARN from creating or finding the policy, that's bad.
     if not policy_arn:
         raise ValueError  # TODO: FIXME
     return policy_arn
