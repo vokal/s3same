@@ -29,42 +29,37 @@ def _policy_string(bucket):
             ]
         })
 
-def _all_policies(iam, **kwargs):
-    marker = None
+def _find_policy(iam):
+    kwargs = {'Scope': 'Local'}
     while True:
-        if marker:
-            kwargs['Marker'] = marker
         response = iam.list_policies(**kwargs)
         for policy in response.get('Policies', []):
-            yield policy
-        marker = response.get('Marker')
-        if not response.get('IsTruncated') or marker is None:
-            break
+            if policy.get('PolicyName') == IAMName:
+                return policy
+        kwargs['Marker'] = response.get('Marker')
+        if not response.get('IsTruncated') or kwargs['Marker'] is None:
+            return None
     
-def _policy_arn(iam, bucket):
-    policy_arn = None
+def _create_policy(iam, bucket):
     try:
         # Try creating the policy...
         response = iam.create_policy(
                 PolicyName=IAMName,
                 PolicyDocument=_policy_string(bucket),
                 )
-        # ... and getting its ARN from the response.
-        policy_arn = response.get('Policy', {}).get('Arn')
+        return response.get('Policy')
     except ClientError as e:
         if e.response['Error']['Code'] != 'EntityAlreadyExists':
             raise
-        # If the policy already exists, go find it and get its ARN.
-        policy_arn = next(
-                (p.get('Arn')
-                    for p in _all_policies(iam, Scope='Local')
-                    if p.get('PolicyName') == IAMName
-                    ),
-                None)
-    # If we failed to get an ARN from creating or finding the policy, that's bad.
-    if not policy_arn:
-        raise ValueError  # TODO: FIXME
-    return policy_arn
+        # If the policy already exists, return None.
+        return None
+
+def _policy_arn(iam, bucket):
+    policy = _create_policy(iam, bucket) or _find_policy(iam)
+    try:
+        return policy['Arn']
+    except (TypeError, KeyError):
+        raise ValueError  # TODO: more specific error?
 
 def _create_group_if_needed(iam, bucket):
     try:
