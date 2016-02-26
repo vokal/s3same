@@ -38,7 +38,7 @@ def _policy_arn(iam, bucket):
         policy_arn = response.get('Policy', {}).get('Arn')
     except ClientError as e:
         if e.response['Error']['Code'] != 'EntityAlreadyExists':
-            raise e
+            raise
         marker = None
         while not policy_arn:
             response = iam.list_policies(Scope='Local')
@@ -55,7 +55,7 @@ def _create_group_if_needed(iam, bucket):
         iam.create_group(GroupName=IAMName)
     except ClientError as e:
         if e.response['Error']['Code'] != 'EntityAlreadyExists':
-            raise e
+            raise
     iam.attach_group_policy(
             GroupName=IAMName,
             PolicyArn=_policy_arn(iam, bucket),
@@ -67,7 +67,7 @@ def credentials_for_new_user(iam, username, bucket=IAMName):
         iam.create_user(UserName=username)
     except ClientError as e:
         if e.response['Error']['Code'] != 'EntityAlreadyExists':
-            raise e
+            raise
     iam.add_user_to_group(UserName=username, GroupName=IAMName)
     return iam.create_access_key(UserName=username).get('AccessKey')
 
