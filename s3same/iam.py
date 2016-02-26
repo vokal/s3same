@@ -1,32 +1,33 @@
+import json
 from botocore.exceptions import ClientError
 
 IAMName = 's3same_travis'
 
 def _policy_string(bucket):
-    return """{
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Action": [
-            "s3:ListBucket"
-          ],
-          "Effect": "Allow",
-          "Resource": [
-            "arn:aws:s3:::%(bucket)s"
-          ]
-        },
-        {
-          "Action": [
-            "s3:PutObject",
-            "s3:PutObjectAcl"
-          ],
-          "Effect": "Allow",
-          "Resource": [
-            "arn:aws:s3:::%(bucket)s/*"
-          ]
-        }
-      ]
-    }""" % dict(bucket=bucket)
+    return json.dumps({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Action": [
+                    "s3:ListBucket"
+                    ],
+                "Effect": "Allow",
+                "Resource": [
+                    "arn:aws:s3:::{}".format(bucket)
+                    ]
+                },
+            {
+                "Action": [
+                    "s3:PutObject",
+                    "s3:PutObjectAcl"
+                    ],
+                "Effect": "Allow",
+                "Resource": [
+                    "arn:aws:s3:::{}/*".format(bucket)
+                    ]
+                }
+            ]
+        })
 
 def _policy_arn(iam, bucket):
     policy_arn = None
