@@ -5,6 +5,8 @@ import yaml
 from .travis import travis_encrypt as _travis_encrypt
 from .iam import credentials_for_new_user, IAMName
 
+__all__ = [ 'artifact_yaml', ]
+
 def artifact_yaml(
         repo, pro, github_token, github_owner, s3_bucket,
         aws_region=None, aws_key=None, aws_secret=None, aws_profile=None):
