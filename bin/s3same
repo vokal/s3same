@@ -3,7 +3,7 @@
 from os.path import abspath, expanduser, exists
 import click
 from dotenv import load_dotenv
-from s3same import S3same
+from s3same import artifact_yaml
 
 env_path = abspath(expanduser('~/.s3same'))
 if exists(env_path):
@@ -57,8 +57,7 @@ def s3same(**kwargs):
         # Neither key nor secret is present.
         if 'aws_profile' not in kwargs:
             raise click.UsageError('You must specify either an AWS profile or AWS key and AWS secret.')
-    s = S3same(**kwargs)
-    click.echo(s.artifact_yaml())
+    click.echo(artifact_yaml(**kwargs))
 
 if __name__ == '__main__':
     s3same()
