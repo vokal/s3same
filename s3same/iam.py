@@ -29,16 +29,20 @@ def _policy_string(bucket):
             ],
         })
 
-def _find_policy(iam):
-    kwargs = {'Scope': 'Local'}
+def _all_pages(iam_method, item_key, **kwargs):
     while True:
-        response = iam.list_policies(**kwargs)
-        for policy in response.get('Policies', []):
-            if policy.get('PolicyName') == IAMName:
-                return policy
+        response = iam_method(**kwargs)
+        for key in response.get(item_key, []):
+            yield key
         kwargs['Marker'] = response.get('Marker')
         if not response.get('IsTruncated') or kwargs['Marker'] is None:
-            return None
+            return
+
+def _find_policy(iam):
+    for policy in _all_pages(iam.list_policies, 'Policies', Scope='Local'):
+        if policy.get('PolicyName') == IAMName:
+            return policy
+    return None
     
 def _create_policy(iam, bucket):
     try:
@@ -92,24 +96,10 @@ def _delete_policy(iam):
     iam.delete_policy(PolicyArn=policy_arn)
 
 def _users_in_group(iam):
-    kwargs = {'GroupName': IAMName}
-    while True:
-        response = iam.get_group(**kwargs)
-        for user in response.get('Users', []):
-            yield user
-        kwargs['Marker'] = response.get('Marker')
-        if not response.get('IsTruncated') or kwargs['Marker'] is None:
-            return
+    return _all_pages(iam.get_group, 'Users', GroupName=IAMName)
 
 def _keys_for_user(iam, username):
-    kwargs = {'UserName': username}
-    while True:
-        response = iam.list_access_keys(**kwargs)
-        for key in response.get('AccessKeyMetadata', []):
-            yield key
-        kwargs['Marker'] = response.get('Marker')
-        if not response.get('IsTruncated') or kwargs['Marker'] is None:
-            return
+    return _all_pages(iam.list_access_keys, 'AccessKeyMetadata', UserName=username)
 
 def _delete_group(iam):
     try:
