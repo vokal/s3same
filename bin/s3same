@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+from os.path import abspath, expanduser, exists
+import click
+from dotenv import load_dotenv
+from s3same import S3same
+
+env_path = abspath(expanduser('~/.s3same'))
+if exists(env_path):
+    load_dotenv(env_path)
+
+@click.command()
+@click.option('--repo', required=True, help='The target repository')
+@click.option('--pro', is_flag=True, help='Use Travis CI Pro')
+@click.option('--github',
+        'github_token',
+        envvar='GITHUB_TOKEN',
+        help='GitHub token')
+@click.option('--owner',
+        'github_owner',
+        envvar='GITHUB_OWNER',
+        help='GitHub owner')
+@click.option('--s3-bucket',
+        envvar='S3_BUCKET',
+        help='S3 bucket for artifacts')
+@click.option('--aws-region',
+        envvar='AWS_REGION',
+        help='AWS region')
+@click.option('--aws-key',
+        envvar='AWS_ACCESS_KEY_ID',
+        help='AWS key')
+@click.option('--aws-secret',
+        envvar='AWS_SECRET_ACCESS_KEY',
+        help='AWS secret')
+@click.option('--aws-profile',
+        envvar='AWS_PROFILE',
+        help='AWS profile')
+def s3same(**kwargs):
+    if 'github_token' not in kwargs:
+        raise click.UsageError('You must specify a GitHub token.')
+    if 'github_owner' not in kwargs:
+        raise click.UsageError('You must specify a repository owner.')
+    if 's3_bucket' not in kwargs:
+        raise click.UsageError('You must specify an S3 bucket.')
+    if 'aws_region' not in kwargs:
+        raise click.UsageError('You must specify an AWS region.')
+    if 'aws_key' in kwargs or 'aws_secret' in kwargs:
+        # At least one of key/secret is present.
+        if 'aws_key' not in kwargs or 'aws_secret' not in kwargs:
+            # At least one of key/secret is missing.
+            raise click.UsageError('You must specify both AWS key and AWS secret together.')
+        # Both key/secret are present.
+        if 'aws_profile' in kwargs:
+            # Key/secret override profile.
+            del kwargs['aws_profile']
+    else:
+        # Neither key nor secret is present.
+        if 'aws_profile' not in kwargs:
+            raise click.UsageError('You must specify either an AWS profile or AWS key and AWS secret.')
+    s = S3same(**kwargs)
+    click.echo(s.artifact_yaml())
+
+if __name__ == '__main__':
+    s3same()
