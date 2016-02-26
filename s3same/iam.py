@@ -81,3 +81,55 @@ def credentials_for_new_user(iam, username, bucket=IAMName):
             raise
     iam.add_user_to_group(UserName=username, GroupName=IAMName)
     return iam.create_access_key(UserName=username).get('AccessKey')
+
+def _delete_policy(iam):
+    policy = _find_policy(iam)
+    try:
+        policy_arn = policy['Arn']
+    except:
+        return
+    iam.detach_group_policy(GroupName=IAMName, PolicyArn=policy_arn)
+    iam.delete_policy(PolicyArn=policy_arn)
+
+def _users_in_group(iam):
+    kwargs = {'GroupName': IAMName}
+    while True:
+        response = iam.get_group(**kwargs)
+        for user in response.get('Users', []):
+            yield user
+        kwargs['Marker'] = response.get('Marker')
+        if not response.get('IsTruncated') or kwargs['Marker'] is None:
+            return
+
+def _keys_for_user(iam, username):
+    kwargs = {'UserName': username}
+    while True:
+        response = iam.list_access_keys(**kwargs)
+        for key in response.get('AccessKeyMetadata', []):
+            yield key
+        kwargs['Marker'] = response.get('Marker')
+        if not response.get('IsTruncated') or kwargs['Marker'] is None:
+            return
+
+def _delete_group(iam):
+    try:
+        users = list(_users_in_group(iam))
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'NoSuchEntity':
+            raise
+        users = []
+    for user in users:
+        username = user.get('UserName')
+        if not username:
+            continue
+        for key in _keys_for_user(iam, username):
+            iam.delete_access_key(UserName=username, AccessKeyId=key.get('AccessKeyId'))
+        iam.remove_user_from_group(GroupName=IAMName, UserName=username)
+        iam.delete_user(UserName=username)
+    _delete_policy(iam)
+    try:
+        iam.delete_group(GroupName=IAMName)
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'NoSuchEntity':
+            raise
+    
