@@ -70,6 +70,3 @@ def credentials_for_new_user(iam, username, bucket=IAMName):
             raise
     iam.add_user_to_group(UserName=username, GroupName=IAMName)
     return iam.create_access_key(UserName=username).get('AccessKey')
-
-def setup_iam(self):
-    iam = self._aws.client('iam')
