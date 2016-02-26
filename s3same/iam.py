@@ -9,24 +9,24 @@ def _policy_string(bucket):
         "Statement": [
             {
                 "Action": [
-                    "s3:ListBucket"
+                    "s3:ListBucket",
                     ],
                 "Effect": "Allow",
                 "Resource": [
-                    "arn:aws:s3:::{}".format(bucket)
-                    ]
+                    "arn:aws:s3:::{}".format(bucket),
+                    ],
                 },
             {
                 "Action": [
                     "s3:PutObject",
-                    "s3:PutObjectAcl"
+                    "s3:PutObjectAcl",
                     ],
                 "Effect": "Allow",
                 "Resource": [
-                    "arn:aws:s3:::{}/*".format(bucket)
-                    ]
-                }
-            ]
+                    "arn:aws:s3:::{}/*".format(bucket),
+                    ],
+                },
+            ],
         })
 
 def _find_policy(iam):
