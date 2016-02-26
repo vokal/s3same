@@ -41,7 +41,7 @@ With all the credentials in place, running
 ```
 $ s3same --repo some-repo-name --owner some-user --pro
 ```
-will create an AWS IAM user unique to the repo (`s3same_travis__some-user__some-repo-name`), add that user to the `s3same_travis` AWS IAM group to give it the necessary permissions (defined by the `s3same_travis` policy), generate an AWS key and secret for that user, use the public key for the given repo on Travis CI to encrypt the key and secret, and print out the YAML snippet to use for artifact uploading credentials.
+will create an AWS IAM user unique to the repo (`s3same_travis__some-user__some-repo-name`), add that user to the `s3same_travis` AWS IAM group (creating the group if it doesn't exist) to give it the necessary permissions (defined by the `s3same_travis` policy, which will be created if it doesn't exist), generate an AWS key and secret for that user, use the public key for the given repo on Travis CI to encrypt the key and secret, and print out the YAML snippet to use for artifact uploading credentials.
 
 ## Configuration
 
