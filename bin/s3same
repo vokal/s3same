@@ -10,7 +10,7 @@ if exists(env_path):
     load_dotenv(env_path)
 
 @click.command()
-@click.option('--repo', required=True, help='The target repository')
+@click.argument('repo', required=True)
 @click.option('--pro', is_flag=True, help='Use Travis CI Pro')
 @click.option('--github',
         'github_token',
