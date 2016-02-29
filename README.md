@@ -13,10 +13,9 @@ will install `s3same` (from the master branch of the source of this repo) as a c
 
 ```
 $ s3same --help
-Usage: s3same [OPTIONS]
+Usage: s3same [OPTIONS] REPO
 
 Options:
-  --repo TEXT         The target repository  [required]
   --pro               Use Travis CI Pro
   --github TEXT       GitHub token
   --owner TEXT        GitHub owner
@@ -25,6 +24,7 @@ Options:
   --aws-key TEXT      AWS key
   --aws-secret TEXT   AWS secret
   --aws-profile TEXT  AWS profile
+  --nuke              Nuke the entire s3same setup on IAM
   --help              Show this message and exit.
 ```
 
@@ -39,7 +39,7 @@ If your AWS credentials are in the default profile, you can omit the `AWS_PROFIL
 
 With all the credentials in place, running
 ```
-$ s3same --repo some-repo-name --owner some-user --pro
+$ s3same some-repo-name --owner some-user --pro
 ```
 will create an AWS IAM user unique to the repo (`s3same_travis__some-user__some-repo-name`), add that user to the `s3same_travis` AWS IAM group (creating the group if it doesn't exist) to give it the necessary permissions (defined by the `s3same_travis` policy, which will be created if it doesn't exist), generate an AWS key and secret for that user, use the public key for the given repo on Travis CI to encrypt the key and secret, and print out the YAML snippet to use for artifact uploading credentials.
 
