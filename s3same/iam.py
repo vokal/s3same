@@ -101,7 +101,7 @@ def _users_in_group(iam):
 def _keys_for_user(iam, username):
     return _all_pages(iam.list_access_keys, 'AccessKeyMetadata', UserName=username)
 
-def _delete_group(iam):
+def nuke_iam(iam):
     try:
         users = list(_users_in_group(iam))
     except ClientError as e:

@@ -3,9 +3,9 @@ import travispy
 import yaml
 
 from .travis import travis_encrypt as _travis_encrypt
-from .iam import credentials_for_new_user, IAMName
+from .iam import credentials_for_new_user, nuke_iam, IAMName
 
-__all__ = [ 'artifact_yaml', 'travis_encrypt', 'iam_credentials', ]
+__all__ = [ 'artifact_yaml', 'travis_encrypt', 'iam_credentials', 'iam_nuke', ]
 
 def artifact_yaml(
         repo, pro, github_token, github_owner, s3_bucket,
@@ -44,3 +44,12 @@ def iam_credentials(
             '{}__{}__{}'.format(IAMName, github_owner, repo),
             s3_bucket,
             )
+
+def iam_nuke(aws_region=None, aws_key=None, aws_secret=None, aws_profile=None):
+    iam = boto3.session.Session(
+            aws_access_key_id=aws_key,
+            aws_secret_access_key=aws_secret,
+            region_name=aws_region,
+            profile_name=aws_profile,
+            ).client('iam')
+    nuke_iam(iam)
