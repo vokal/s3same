@@ -29,16 +29,20 @@ def _policy_string(bucket):
             ],
         })
 
-def _find_policy(iam):
-    kwargs = {'Scope': 'Local'}
+def _all_pages(iam_method, item_key, **kwargs):
     while True:
-        response = iam.list_policies(**kwargs)
-        for policy in response.get('Policies', []):
-            if policy.get('PolicyName') == IAMName:
-                return policy
+        response = iam_method(**kwargs)
+        for key in response.get(item_key, []):
+            yield key
         kwargs['Marker'] = response.get('Marker')
         if not response.get('IsTruncated') or kwargs['Marker'] is None:
-            return None
+            return
+
+def _find_policy(iam):
+    for policy in _all_pages(iam.list_policies, 'Policies', Scope='Local'):
+        if policy.get('PolicyName') == IAMName:
+            return policy
+    return None
     
 def _create_policy(iam, bucket):
     try:
@@ -81,3 +85,41 @@ def credentials_for_new_user(iam, username, bucket=IAMName):
             raise
     iam.add_user_to_group(UserName=username, GroupName=IAMName)
     return iam.create_access_key(UserName=username).get('AccessKey')
+
+def _delete_policy(iam):
+    policy = _find_policy(iam)
+    try:
+        policy_arn = policy['Arn']
+    except:
+        return
+    iam.detach_group_policy(GroupName=IAMName, PolicyArn=policy_arn)
+    iam.delete_policy(PolicyArn=policy_arn)
+
+def _users_in_group(iam):
+    return _all_pages(iam.get_group, 'Users', GroupName=IAMName)
+
+def _keys_for_user(iam, username):
+    return _all_pages(iam.list_access_keys, 'AccessKeyMetadata', UserName=username)
+
+def nuke_iam(iam):
+    try:
+        users = list(_users_in_group(iam))
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'NoSuchEntity':
+            raise
+        users = []
+    for user in users:
+        username = user.get('UserName')
+        if not username:
+            continue
+        for key in _keys_for_user(iam, username):
+            iam.delete_access_key(UserName=username, AccessKeyId=key.get('AccessKeyId'))
+        iam.remove_user_from_group(GroupName=IAMName, UserName=username)
+        iam.delete_user(UserName=username)
+    _delete_policy(iam)
+    try:
+        iam.delete_group(GroupName=IAMName)
+    except ClientError as e:
+        if e.response['Error']['Code'] != 'NoSuchEntity':
+            raise
+    

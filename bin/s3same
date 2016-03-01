@@ -1,16 +1,42 @@
 #!/usr/bin/env python
 
 from os.path import abspath, expanduser, exists
+from time import sleep
+from itertools import cycle
+from datetime import datetime, timedelta
 import click
 from dotenv import load_dotenv
-from s3same import artifact_yaml
+from s3same import artifact_yaml, iam_nuke
 
 env_path = abspath(expanduser('~/.s3same'))
 if exists(env_path):
     load_dotenv(env_path)
 
+def nuke(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    if not click.confirm('Are you sure you want to nuke the whole s3same setup from IAM?'):
+        click.echo('Aborted.')
+        ctx.exit()
+    click.secho(
+            '\nDoing this will make any s3same-generated credentials invalid.\nThere is NO WAY to undo this.\n',
+            bold=True)
+    click.echo('Take a moment to think it over…   ', nl=False)
+    spinner = cycle(['|', '/', '-', '\\'])
+    end_time = datetime.now() + timedelta(seconds=5)
+    while datetime.now() < end_time:
+        click.echo('\b{}'.format(next(spinner)), nl=False)
+        sleep(0.1)
+    click.echo('\x1b[2K\r', nl=False)  # Clear the "Take a moment…" spinner line.
+    if not click.confirm('You\'re really sure?'):
+        click.echo('Aborted.')
+        ctx.exit()
+    iam_nuke(**ctx.params)
+    click.echo('Nuked.')
+    ctx.exit()
+
 @click.command()
-@click.option('--repo', required=True, help='The target repository')
+@click.argument('repo', required=True)
 @click.option('--pro', is_flag=True, help='Use Travis CI Pro')
 @click.option('--github',
         'github_token',
@@ -25,16 +51,26 @@ if exists(env_path):
         help='S3 bucket for artifacts')
 @click.option('--aws-region',
         envvar='AWS_REGION',
+        is_eager=True,
         help='AWS region')
 @click.option('--aws-key',
         envvar='AWS_ACCESS_KEY_ID',
+        is_eager=True,
         help='AWS key')
 @click.option('--aws-secret',
         envvar='AWS_SECRET_ACCESS_KEY',
+        is_eager=True,
         help='AWS secret')
 @click.option('--aws-profile',
         envvar='AWS_PROFILE',
+        is_eager=True,
         help='AWS profile')
+@click.option('--nuke',
+        is_flag=True,
+        expose_value=False,
+        is_eager=True,
+        callback=nuke,
+        help='Nuke the entire s3same setup on IAM')
 def s3same(**kwargs):
     if 'github_token' not in kwargs:
         raise click.UsageError('You must specify a GitHub token.')
