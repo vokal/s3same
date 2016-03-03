@@ -5,7 +5,7 @@
 
 Running the command
 ```sh
-sudo pip install git+https://github.com/vokal/s3same.git
+sudo pip install s3same
 ```
 will install `s3same` (from the master branch of the source of this repo) as a command in `/usr/local/bin`.
 
