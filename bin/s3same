@@ -21,13 +21,13 @@ def nuke(ctx, param, value):
     click.secho(
             '\nDoing this will make any s3same-generated credentials invalid.\nThere is NO WAY to undo this.\n',
             bold=True)
-    click.echo('Take a moment to think it over…   ', nl=False)
+    click.echo('Take a moment to think it over...   ', nl=False)
     spinner = cycle(['|', '/', '-', '\\'])
     end_time = datetime.now() + timedelta(seconds=5)
     while datetime.now() < end_time:
         click.echo('\b{}'.format(next(spinner)), nl=False)
         sleep(0.1)
-    click.echo('\x1b[2K\r', nl=False)  # Clear the "Take a moment…" spinner line.
+    click.echo('\x1b[2K\r', nl=False)  # Clear the "Take a moment..." spinner line.
     if not click.confirm('You\'re really sure?'):
         click.echo('Aborted.')
         ctx.exit()
