@@ -16,8 +16,8 @@ def artifact_yaml(
             (credentials['AccessKeyId'], credentials['SecretAccessKey'],),
             )
     return yaml.safe_dump({
-        'key': { 'secure': enc_key, },
-        'secret': { 'secure': enc_secret, },
+        'key': { 'secure': enc_key.decode('latin-1'), },
+        'secret': { 'secure': enc_secret.decode('latin-1'), },
         },
         default_flow_style=False,
         )
