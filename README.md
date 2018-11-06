@@ -24,7 +24,7 @@ AWS Secret Access Key [None]: YourKey
 Default region name [None]: us-west-2
 Default output format [None]: text
 ```
-(Note, you may need the help of a Senior iOS Dev or the systems team to generate an AWS Access Key ID and AWS Secret Access Key)
+(Note, you may need the help of a Senior iOS dev or a member of the Systems team to generate an AWS Access Key ID and AWS Secret Access Key)
 
 - You may also need to install pip
 
