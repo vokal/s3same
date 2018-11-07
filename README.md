@@ -9,13 +9,13 @@ Running the command
 ```sh
 brew install awscli
 ```
-will install the latest release of awscli
+will install the latest release of awscli.
 
 Running the command
 ```sh
 aws configure
 ```
-will initiate configuration
+will initiate configuration.
 
 It will prompt you for the following values:
 ```sh
@@ -24,7 +24,7 @@ AWS Secret Access Key [None]: YourKey
 Default region name [None]: us-west-2
 Default output format [None]: text
 ```
-(Note, you may need the help of a Senior iOS dev or a member of the Systems team to generate an AWS Access Key ID and AWS Secret Access Key)
+**NOTE:** You may need the help of a Senior iOS dev or a member of the Systems team to generate an AWS Access Key ID and AWS Secret Access Key.
 
 - You may also need to install pip
 
@@ -32,7 +32,7 @@ Run the command
 ```sh
 sudo easy_install pip
 ```
-to install
+to install.
 
 ## Installation
 
