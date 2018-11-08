@@ -1,6 +1,39 @@
 # s3same
 `s3same` ("sesame", like ["open sesame"](https://en.wikipedia.org/wiki/Open_Sesame_(phrase))) creates unique-per-repo AWS credentials for Travis CI artifact uploading to S3 and encrypts those credentials with the repo's public key.
 
+## Prerequisities
+- You may need to install and configure AWS CLI prior.
+This is easily accomplished using [homebrew](https://brew.sh/).
+
+Running the command
+```sh
+brew install awscli
+```
+will install the latest release of awscli.
+
+Running the command
+```sh
+aws configure
+```
+will initiate configuration.
+
+It will prompt you for the following values:
+```sh
+AWS Access Key ID [None]: YourKey
+AWS Secret Access Key [None]: YourKey
+Default region name [None]: us-west-2
+Default output format [None]: text
+```
+**NOTE:** You may need the help of a Senior iOS dev or a member of the Systems team to generate an AWS Access Key ID and AWS Secret Access Key.
+
+- You may also need to install pip
+
+Run the command
+```sh
+sudo easy_install pip
+```
+to install.
+
 ## Installation
 
 Running the command
@@ -8,6 +41,11 @@ Running the command
 sudo pip install s3same
 ```
 will install the latest stable release of `s3same` as a command in `/usr/local/bin`.
+
+Note, if you are having issues related to the file directory not being found, you may need to try appending the --no-binary option with the :all: value to the command
+```sh
+sudo pip install --no-binary :all: s3same
+```
 
 ## Usage
 
