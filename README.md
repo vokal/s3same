@@ -4,7 +4,13 @@
 
 ## Prerequisities
 
-Make sure you have [`pip`](https://pip.pypa.io/en/stable/installing/) installed. `pip` is a package manager for Python packages. You can learn more by going to the [PyPI](https://pypi.org/) official website.
+Make sure you have `pip` installed, [check](https://pip.pypa.io/en/stable/installing/) if you need to install it. `pip` is a package manager for Python packages. You can learn more by going to the [PyPI](https://pypi.org/) official website.
+
+- You can run:
+
+  ```sh
+  sudo easy_install pip
+  ```
 
 A [`virtualenv`](https://virtualenv.pypa.io/en/latest/) environment is recommended since it keeps your Python projects organized by keeping installed packages in its own environment:
 
@@ -59,16 +65,6 @@ Default output format [None]: text
 ```
 
 **NOTE:** You may need the help of a Senior iOS dev or a member of the Systems team to generate an AWS Access Key ID and AWS Secret Access Key.
-
-- You may also need to install pip
-
-Run the command
-
-```sh
-sudo easy_install pip
-```
-
-to install.
 
 ## Installation
 
