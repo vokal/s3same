@@ -1,10 +1,7 @@
 from setuptools import setup
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError):
-    long_description = open('README.md').read()
+with open("README.md", "r") as f:
+    long_description = f.read()
 
 setup(name='s3same',
       version='0.1',
@@ -20,6 +17,7 @@ setup(name='s3same',
       url='http://github.com/vokal/s3same',
       author='Vokal',
       author_email='pypi@vokal.io',
+      use_2to3=True,
       license='MIT',
       packages=['s3same'],
       install_requires=[
