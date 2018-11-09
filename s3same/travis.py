@@ -1,6 +1,6 @@
 from base64 import b64encode
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Util.py3compat import b
 import travispy
 
@@ -13,6 +13,6 @@ def _get_key(travis, repo_slug):
 
 def travis_encrypt(travis, repo_slug, string):
     return b64encode(
-            PKCS1_v1_5.new(
+            PKCS1_OAEP.new(
                 RSA.importKey(_get_key(travis, repo_slug))
                 ).encrypt(b(string)))
